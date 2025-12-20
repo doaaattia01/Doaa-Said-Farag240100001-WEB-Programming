@@ -1,1 +1,24 @@
 
+<?php
+$name="Doaa";
+$age=20;
+
+echo "Hello, my name is " . $name . "<br>";
+echo "I am " . $age . " years old.<br>";
+
+if ($age >= 18) {
+    echo "eligible to use this website.";} 
+else {
+    echo "not eligible to use this website";}
+
+$number1 =5;
+$number2 =3;
+
+$sum = $number1 + $number2;
+
+echo "First number: " . $number1 . "<br>";
+echo "Second number: " . $number2 . "<br>";
+
+
+echo "Sum = " . $sum;
+?>
