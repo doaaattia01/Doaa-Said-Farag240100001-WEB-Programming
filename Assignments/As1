@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Simple Webpage</title>
+</head>
+<body>
+
+  <table border="1" width="100%" cellspacing="0" cellpadding="10">
+    <!-- Header -->
+    <tr bgcolor="#ADD8E6" align="center">
+      <td colspan="2">
+        <h2>Title</h2>
+      </td>
+    </tr>
+
+    <!-- Main Section -->
+    <tr valign="top">
+      <td width="20%">
+        <a href="#">Home</a><br>
+        <a href="#">Learn HTML</a><br>
+        <a href="#">About Us</a>
+      </td>
+      <td>
+        <h3>Home</h3>
+        <p>This is a home page.</p>
+      </td>
+    </tr>
+
+    <!-- Footer -->
+    <tr bgcolor="#ADD8E6" align="center">
+      <td colspan="2">
+        Footer
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
+
