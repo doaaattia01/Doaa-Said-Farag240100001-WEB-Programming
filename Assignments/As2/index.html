@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Task Manager Dashboard</title>
+  <link rel="stylesheet" href="Ass.css">
+</head>
+
+<body>
+  <div class="container">
+    <h1>Task Manager Dashboard</h1>
+    <button id="toggleTheme">Toggle Dark/Light Theme</button>
+    <br><br>
+
+    <h3>Add New Task</h3>
+    <input type="text" id="taskTitle" placeholder="Title">
+    <br><br>
+    <textarea id="taskDesc" placeholder="Description"></textarea>
+    <br><br>
+    <select id="taskPriority">
+      <option>High</option>
+      <option>Medium</option>
+      <option>Low</option>
+    </select>
+    <br><br>
+    <button id="addTaskBtn">Add Task</button>
+
+    <hr>
+    <label>Filter by priority:</label>
+    <select id="filterPriority">
+      <option value="All">All</option>
+      <option value="High">High</option>
+      <option value="Medium">Medium</option>
+      <option value="Low">Low</option>
+    </select>
+
+    <div id="taskList"></div>
+  </div>
+
+  <script src="Ass.js"></script>
+</body>
+</html>
