@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DreamHome Realty</title>
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans flex flex-col min-h-screen">
+
+    <!-- Navigation (simplified, desktop only) -->
+    <nav class="bg-white shadow-md fixed w-full z-50">
+        <div class="max-w-5xl mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center cursor-pointer" onclick="navigateTo('home')">
+                    <i class="fa-solid fa-house-chimney text-blue-600 text-2xl mr-2"></i>
+                    <span class="font-bold text-xl tracking-tight text-gray-900">DreamHome<span class="text-blue-600">Realty</span></span>
+                </div>
+                <div class="flex space-x-6 items-center">
+                    <button onclick="navigateTo('home')" class="nav-link text-gray-600 hover:text-blue-600 px-3 py-2 transition-colors active" id="nav-home">Home</button>
+                    <button onclick="navigateTo('properties')" class="nav-link text-gray-600 hover:text-blue-600 px-3 py-2 transition-colors" id="nav-properties">Properties</button>
+                    <button onclick="navigateTo('about')" class="nav-link text-gray-600 hover:text-blue-600 px-3 py-2 transition-colors" id="nav-about">About Us</button>
+                    <button onclick="navigateTo('contact')" class="nav-link text-gray-600 hover:text-blue-600 px-3 py-2 transition-colors" id="nav-contact">Contact</button>
+                    <button onclick="navigateTo('contact')" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition shadow-sm">Get Started</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Spacer for fixed header -->
+    <div class="h-16"></div>
+
+    <!-- Main Content Area -->
+    <main id="app-content" class="flex-grow">
+        <!-- Content injected by JS -->
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white pt-12 pb-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="col-span-1 md:col-span-1">
+                    <div class="flex items-center mb-4">
+                        <i class="fa-solid fa-house-chimney text-blue-500 text-xl mr-2"></i>
+                        <span class="font-bold text-lg">DreamHome</span>
+                    </div>
+                    <p class="text-gray-400 text-sm">Making your real estate dreams a reality since 2025. Find your perfect place with us.</p>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg mb-4">Quick Links</h3>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><button onclick="navigateTo('home')" class="hover:text-white">Home</button></li>
+                        <li><button onclick="navigateTo('properties')" class="hover:text-white">Properties</button></li>
+                        <li><button onclick="navigateTo('about')" class="hover:text-white">About Us</button></li>
+                        <li><button onclick="navigateTo('contact')" class="hover:text-white">Contact</button></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg mb-4">Contact Info</h3>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><i class="fa-solid fa-location-dot mr-2"></i> 123 Innovation Dr, Tech City</li>
+                        <li><i class="fa-solid fa-phone mr-2"></i> (555) 123-4567</li>
+                        <li><i class="fa-solid fa-envelope mr-2"></i> hello@dreamhome.com</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg mb-4">Newsletter</h3>
+                    <form onsubmit="event.preventDefault(); alert('Subscribed!');" class="flex flex-col space-y-2">
+                        <input type="email" placeholder="Enter your email" class="px-4 py-2 bg-gray-800 border border-gray-700 rounded focus:outline-none focus:border-blue-500 text-white">
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded transition">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-500">
+                &copy; 2025 DreamHome Realty. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Application Logic -->
+    <script src="script.js"></script>
+</body>
+</html>
