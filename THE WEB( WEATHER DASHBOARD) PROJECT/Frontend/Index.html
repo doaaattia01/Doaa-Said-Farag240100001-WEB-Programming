@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌤️ Weather Forecast | Real-time Weather Information</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+             <main class="main-content">
+            <section class="search-section">
+                <div class="search-container">
+                    <div class="search-box">
+                        <div class="search-input-wrapper">
+                            <i class="fas fa-search search-icon"></i>
+                            <input 
+                                type="text" 
+                                id="city-input" 
+                                placeholder="Search for a city (e.g., Cairo, London, Tokyo)" 
+                                autocomplete="off"
+                            >
+                            <div class="input-actions">
+                                <button id="clear-btn" class="clear-btn hidden">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button id="search-btn" class="primary-btn">
+                            <i class="fas fa-search"></i>
+                            <span>Get Weather</span>
+                        </button>
+                    </div>
+                    
+                    <div class="quick-search">
+                        <span class="quick-search-label">Quick search:</span>
+                        <div class="quick-search-buttons">
+                            <button class="city-chip" data-city="Cairo">Cairo</button>
+                            <button class="city-chip" data-city="London">London</button>
+                            <button class="city-chip" data-city="Tokyo">Tokyo</button>
+                            <button class="city-chip" data-city="Paris">Paris</button>
+                            <button class="city-chip" data-city="New York">New York</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="weather-section">
+                <div id="loading-state" class="loading-state hidden">
+                    <div class="loading-content">
+                        <div class="loading-spinner"></div>
+                        <h3>Fetching Weather Data</h3>
+                        <p>Please wait while we get the latest weather information...</p>
+                        <div class="loading-progress">
+                            <div class="progress-bar"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="error-state" class="error-state hidden">
+                    <div class="error-content">
+                        <i class="fas fa-exclamation-triangle error-icon"></i>
+                        <h3>Something Went Wrong</h3>
+                        <p id="error-message">Unable to fetch weather data. Please try again.</p>
+                        <button id="retry-btn" class="secondary-btn">
+                            <i class="fas fa-redo"></i>
+                            Try Again
+                        </button>
+                    </div>
+                </div>
+                <div id="weather-card" class="weather-card hidden">
+                    <div class="weather-card-header">
+                        <div class="location-info">
+                            <h2 id="city-name" class="city-name">--</h2>
+                            <p class="country-name" id="country-name">--</p>
+                            <div class="coordinates">
+                                <span class="coordinate">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span id="coordinates">--, --</span>
+                                </span>
+                                <span class="update-time">
+                                    <i class="fas fa-clock"></i>
+                                    Updated: <span id="update-time">--</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="current-weather">
+                            <div class="temperature-display">
+                                <div id="weather-icon" class="weather-icon-large">☀️</div>
+                                <div class="temp-value">
+                                    <span id="temperature" class="temperature">--</span>
+                                    <span class="temp-unit">°C</span>
+                                </div>
+                            </div>
+                            <p id="weather-description" class="weather-desc">--</p>
+                        </div>
+                    </div>
+
+                    <div class="weather-details-grid">
+                        <div class="detail-card">
+                            <div class="detail-icon">
+                                <i class="fas fa-thermometer-half"></i>
+                            </div>
+                            <div class="detail-content">
+                                <span class="detail-label">Feels Like</span>
+                                <span id="feels-like" class="detail-value">-- °C</span>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-card">
+                            <div class="detail-icon">
+                                <i class="fas fa-wind"></i>
+                            </div>
+                            <div class="detail-content">
+                                <span class="detail-label">Wind Speed</span>
+                                <span id="wind-speed" class="detail-value">-- km/h</span>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-card">
+                            <div class="detail-icon">
+                                <i class="fas fa-tint"></i>
+                            </div>
+                            <div class="detail-content">
+                                <span class="detail-label">Humidity</span>
+                                <span id="humidity" class="detail-value">-- %</span>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-card">
+                            <div class="detail-icon">
+                                <i class="fas fa-compress-alt"></i>
+                            </div>
+                            <div class="detail-content">
+                                <span class="detail-label">Pressure</span>
+                                <span id="pressure" class="detail-value">-- hPa</span>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-card">
+                            <div class="detail-icon">
+                                <i class="fas fa-eye"></i>
+                            </div>
+                            <div class="detail-content">
+                                <span class="detail-label">Visibility</span>
+                                <span id="visibility" class="detail-value">-- km</span>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-card">
+                            <div class="detail-icon">
+                                <i class="fas fa-cloud"></i>
+                            </div>
+                            <div class="detail-content">
+                                <span class="detail-label">Weather Code</span>
+                                <span id="weather-code" class="detail-value">--</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="weather-footer">
+                        <div class="additional-info">
+                            <div class="info-item">
+                                <i class="fas fa-sun"></i>
+                                <span>Sunrise: <span id="sunrise">--:--</span></span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-moon"></i>
+                                <span>Sunset: <span id="sunset">--:--</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="history-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-history"></i> Recent Searches</h3>
+                    <button id="clear-history" class="text-btn">
+                        <i class="fas fa-trash"></i>
+                        Clear All
+                    </button>
+                </div>
+                
+                <div id="history-container" class="history-container">
+                    <div class="empty-history">
+                        <i class="fas fa-search"></i>
+                        <p>No recent searches</p>
+                        <small>Search for a city to see it here</small>
+                    </div>
+                </div>
+            </section>
+
+        
+        </main>
+
+      
+    </div>
+    <div id="toast" class="toast"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
