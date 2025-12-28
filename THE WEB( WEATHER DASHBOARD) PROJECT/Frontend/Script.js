@@ -1,10 +1,21 @@
+
 class WeatherApp {
+    /**
+     * Constructor - Initialize app settings
+     */
     constructor() {
-        this.API_BASE_URL = 'http://localhost:8000/api';
-        this.cacheDuration = 5 * 60 * 1000; 
+        this.API_BASE_URL = 'http://localhost:8000/backend/api'; // Backend API base URL
+        this.cacheDuration = 5 * 60 * 1000; // Cache duration: 5 minutes in milliseconds
         this.init();
     }
 
+    /**
+     * Initialize the application
+     * - Load cached data
+     * - Setup event listeners
+     * - Load search history from database
+     * - Setup loading animations
+     */
     init() {
         this.cache = this.loadCache();
         this.setupEventListeners();
@@ -12,31 +23,45 @@ class WeatherApp {
         this.setupSkeletonLoading();
     }
 
+    /**
+     * ========================================
+     * EVENT LISTENERS SETUP
+     * ========================================
+     * Setup all event listeners for user interactions
+     */
     setupEventListeners() {
+        // Search button click
         document.getElementById('search-btn').addEventListener('click', () => this.searchWeather());
-        
+
+        // Enter key press in search input
         document.getElementById('city-input').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') this.searchWeather();
         });
-        
+
+        // Clear input button
         document.getElementById('clear-btn').addEventListener('click', () => this.clearInput());
-        
+
+        // Show/hide clear button based on input
         document.getElementById('city-input').addEventListener('input', (e) => {
             this.toggleClearButton(e.target.value);
         });
-                document.querySelectorAll('.city-chip').forEach(btn => {
+
+        // Quick search city chips (Cairo, London, Tokyo, etc.)
+        document.querySelectorAll('.city-chip').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const city = e.target.dataset.city;
                 document.getElementById('city-input').value = city;
                 this.searchWeather();
             });
         });
-        
+
+        // Retry button in error state
         document.getElementById('retry-btn').addEventListener('click', () => {
             const city = document.getElementById('city-input').value;
             if (city) this.searchWeather();
         });
-        
+
+        // Clear all history button
         document.getElementById('clear-history').addEventListener('click', () => {
             this.clearHistory();
         });
@@ -89,32 +114,54 @@ class WeatherApp {
         document.head.appendChild(style);
     }
 
+    /**
+     * ========================================
+     * SEARCH WEATHER - MAIN FUNCTION
+     * ========================================
+     * Fetches weather data for the entered city
+     *
+     * Process:
+     * 1. Get city name from input
+     * 2. Call backend API
+     * 3. Display weather data
+     * 4. Save to cache and history
+     */
    async searchWeather() {
     const city = document.getElementById('city-input').value.trim();
-    if (!city) return;
+    if (!city) return; // Exit if input is empty
 
-    this.showLoading();
+    this.showLoading(); // Show skeleton loader
 
     try {
+        // Call backend API to get weather data
         const response = await fetch(
             `${this.API_BASE_URL}/weather.php?city=${encodeURIComponent(city)}`
         );
 
         const data = await response.json();
 
+        // Check for API errors
         if (data.error) {
             throw new Error(data.error);
         }
 
+        // Display weather data on screen
         this.displayWeather(data);
+
+        // Save to localStorage cache (5 min)
         this.saveToCache(city, data);
+
+        // Save to database history
         this.saveToHistory(data.city, data.country);
 
+        // Show success notification
         this.showToast(`Weather loaded for ${data.city}`);
 
     } catch (err) {
+        // Show error message to user
         this.showError(err.message);
     } finally {
+        // Hide loader in all cases
         this.hideLoading();
     }
 }
@@ -185,104 +232,225 @@ class WeatherApp {
         }
     }
 
+    /**
+     * ========================================
+     * DISPLAY WEATHER DATA
+     * ========================================
+     * Shows weather information on the screen
+     *
+     * @param {Object} data - Weather data from API
+     */
     displayWeather(data) {
-        this.hideLoading();
-        this.hideError();
-                const weatherCard = document.getElementById('weather-card');
+        this.hideLoading();  // Hide skeleton loader
+        this.hideError();    // Hide any previous errors
+
+        // Show weather card
+        const weatherCard = document.getElementById('weather-card');
         weatherCard.classList.remove('hidden');
-                document.getElementById('city-name').textContent = data.city;
+
+        // ========================================
+        // Update UI Elements with Weather Data
+        // ========================================
+
+        // Display city and country names
+        document.getElementById('city-name').textContent = data.city;
         document.getElementById('country-name').textContent = data.country;
-        document.getElementById('coordinates').textContent = 
+
+        // Display coordinates (latitude, longitude) - rounded to 4 decimal places
+        document.getElementById('coordinates').textContent =
             `${data.latitude?.toFixed(4) || '--'}, ${data.longitude?.toFixed(4) || '--'}`;
-        document.getElementById('update-time').textContent = 
+
+        // Display last update time (formatted as local time)
+        document.getElementById('update-time').textContent =
             new Date(data.timestamp).toLocaleTimeString();
-        
-        document.getElementById('temperature').textContent = 
+
+        // Display temperature (rounded to 1 decimal place)
+        document.getElementById('temperature').textContent =
             data.temperature?.toFixed(1) || '--';
-        document.getElementById('weather-icon').textContent = 
+
+        // Display weather icon (emoji)
+        document.getElementById('weather-icon').textContent =
             data.weather_icon || '☀️';
-        document.getElementById('weather-description').textContent = 
+
+        // Display weather description (e.g., "Clear sky")
+        document.getElementById('weather-description').textContent =
             data.weather_description || '--';
-        document.getElementById('weather-code').textContent = 
+
+        // Display weather code (numeric code from API)
+        document.getElementById('weather-code').textContent =
             data.weather_code || '--';
-                document.getElementById('feels-like').textContent = 
+
+        // Display "feels like" temperature
+        document.getElementById('feels-like').textContent =
             data.temperature ? `${data.temperature.toFixed(1)} °C` : '-- °C';
-        document.getElementById('wind-speed').textContent = 
+
+        // Display wind speed (km/h)
+        document.getElementById('wind-speed').textContent =
             data.windspeed ? `${data.windspeed.toFixed(1)} km/h` : '-- km/h';
-        document.getElementById('humidity').textContent = 
+
+        // Display humidity percentage
+        document.getElementById('humidity').textContent =
             data.humidity ? `${data.humidity}%` : '-- %';
-        document.getElementById('pressure').textContent = '1013 hPa'; 
+
+        // Display pressure (static value - not from API)
+        document.getElementById('pressure').textContent = '1013 hPa';
+
+        // Display visibility (static value - not from API)
         document.getElementById('visibility').textContent = '10 km';
-        
+
+        // Display sunrise time (if available)
         if (data.sunrise !== 'N/A') {
             const sunriseTime = new Date(data.sunrise).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
             document.getElementById('sunrise').textContent = sunriseTime;
         }
-        
+
+        // Display sunset time (if available)
         if (data.sunset !== 'N/A') {
             const sunsetTime = new Date(data.sunset).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
             document.getElementById('sunset').textContent = sunsetTime;
         }
-        
+
+        // Animate temperature value from 0 to actual value (smooth transition)
         this.animateValue('temperature', 0, data.temperature, 1000);
     }
 
+    /**
+     * ========================================
+     * CACHE MANAGEMENT - LOCALSTORAGE
+     * ========================================
+     * Cache weather data for 5 minutes to reduce API calls
+     */
+
+    /**
+     * Load cache from localStorage
+     * @returns {Object} Cache object with city data
+     */
     loadCache() {
         const cache = localStorage.getItem('weatherCache');
         return cache ? JSON.parse(cache) : {};
     }
 
+    /**
+     * Save cache to localStorage
+     */
     saveCache() {
         localStorage.setItem('weatherCache', JSON.stringify(this.cache));
     }
 
+    /**
+     * Get cached weather data for a city (if still valid)
+     * @param {string} city - City name
+     * @returns {Object|null} Cached data or null if expired/not found
+     */
     getFromCache(city) {
         const cached = this.cache[city.toLowerCase()];
+        // Check if cache exists and is still valid (within 5 minutes)
         if (cached && Date.now() - cached.timestamp < this.cacheDuration) {
             return cached.data;
         }
-        return null;
+        return null; // Cache expired or doesn't exist
     }
 
+    /**
+     * Save weather data to cache
+     * @param {string} city - City name
+     * @param {Object} data - Weather data to cache
+     */
     saveToCache(city, data) {
         this.cache[city.toLowerCase()] = {
             data: data,
-            timestamp: Date.now()
+            timestamp: Date.now() // Current timestamp for expiration check
         };
         this.saveCache();
     }
 
+    /**
+     * Clear all cached data
+     */
     clearCache() {
         this.cache = {};
         this.saveCache();
     }
 
+    /**
+     * ========================================
+     * SAVE TO HISTORY
+     * ========================================
+     * Save search to localStorage (backup) and trigger database reload
+     *
+     * @param {string} city - City name
+     * @param {string} country - Country name
+     */
     saveToHistory(city, country) {
+        // Keep localStorage as backup (in case database fails)
+        // Load existing history from localStorage
         let history = JSON.parse(localStorage.getItem('weatherHistory') || '[]');
-        
+
+        // Remove duplicate entry if city already exists
         history = history.filter(item => item.city.toLowerCase() !== city.toLowerCase());
-        
+
+        // Add new search to the beginning of array
         history.unshift({
             city: city,
             country: country,
             time: new Date().toISOString(),
             timestamp: Date.now()
         });
-        
+
+        // Keep only last 10 searches
         history = history.slice(0, 10);
-        
+
+        // Save updated history to localStorage
         localStorage.setItem('weatherHistory', JSON.stringify(history));
-        this.displayHistory(history);
+
+        // Reload history from database to show updated data
+        // (Database save happens in backend after weather API call)
+        this.loadSearchHistory();
     }
 
-    loadSearchHistory() {
-        const history = JSON.parse(localStorage.getItem('weatherHistory') || '[]');
-        this.displayHistory(history);
+    /**
+     * ========================================
+     * LOAD SEARCH HISTORY FROM DATABASE
+     * ========================================
+     * Fetches recent searches from backend API
+     * Falls back to localStorage if database fails
+     */
+    async loadSearchHistory() {
+        try {
+            // Fetch history from database via API
+            const response = await fetch(`${this.API_BASE_URL}/history.php`);
+            const dbHistory = await response.json();
+
+            // Format database history to match localStorage format
+            const formattedHistory = dbHistory.map(item => ({
+                city: item.city,
+                country: item.country,
+                time: item.time,
+                timestamp: new Date(item.time).getTime()
+            }));
+
+            // Display formatted history
+            this.displayHistory(formattedHistory);
+        } catch (error) {
+            console.error('Error loading history from database:', error);
+            // Fallback to localStorage if database fails
+            const history = JSON.parse(localStorage.getItem('weatherHistory') || '[]');
+            this.displayHistory(history);
+        }
     }
 
+    /**
+     * ========================================
+     * DISPLAY HISTORY
+     * ========================================
+     * Renders history items in the UI
+     *
+     * @param {Array} history - Array of history items
+     */
     displayHistory(history) {
         const container = document.getElementById('history-container');
-        
+
+        // Show empty state if no history
         if (!history || history.length === 0) {
             container.innerHTML = `
                 <div class="empty-history">
@@ -293,137 +461,246 @@ class WeatherApp {
             `;
             return;
         }
-        
+
+        // Generate HTML for each history item
         const historyHTML = history.map(item => `
             <div class="history-item" onclick="app.searchFromHistory('${item.city}')">
                 <div class="history-item-content">
+                    <!-- City and country name -->
                     <div class="history-city">${item.city}, ${item.country}</div>
+                    <!-- Search timestamp (formatted as local date/time) -->
                     <div class="history-time">${new Date(item.time).toLocaleString()}</div>
                 </div>
                 <div class="history-actions">
+                    <!-- Delete button for individual item -->
                     <button onclick="app.deleteHistoryItem('${item.city}', event)">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
             </div>
-        `).join('');
-        
+        `).join(''); // Join all items into single HTML string
+
+        // Insert generated HTML into container
         container.innerHTML = `<div class="history-list">${historyHTML}</div>`;
     }
 
+    /**
+     * ========================================
+     * SEARCH FROM HISTORY
+     * ========================================
+     * Triggered when user clicks on a history item
+     *
+     * @param {string} city - City name from history
+     */
     searchFromHistory(city) {
+        // Fill input with city name
         document.getElementById('city-input').value = city;
+        // Trigger search
         this.searchWeather();
     }
 
+    /**
+     * ========================================
+     * DELETE HISTORY ITEM
+     * ========================================
+     * Remove a single item from history
+     *
+     * @param {string} city - City name to remove
+     * @param {Event} event - Click event (to stop propagation)
+     */
     deleteHistoryItem(city, event) {
-        event.stopPropagation();
-        
+        event.stopPropagation(); // Prevent triggering searchFromHistory
+
+        // Load history from localStorage
         let history = JSON.parse(localStorage.getItem('weatherHistory') || '[]');
+        // Filter out the selected city
         history = history.filter(item => item.city !== city);
+        // Save updated history
         localStorage.setItem('weatherHistory', JSON.stringify(history));
+        // Refresh display
         this.displayHistory(history);
-        
+
+        // Show confirmation toast
         this.showToast('Search removed from history');
     }
 
+    /**
+     * ========================================
+     * CLEAR ALL HISTORY
+     * ========================================
+     * Remove all history items (with confirmation)
+     */
     clearHistory() {
+        // Ask for confirmation
         if (confirm('Are you sure you want to clear all search history?')) {
+            // Remove from localStorage
             localStorage.removeItem('weatherHistory');
+            // Show empty state
             this.displayHistory([]);
+            // Show confirmation toast
             this.showToast('Search history cleared');
         }
     }
 
+    /**
+     * ========================================
+     * UI STATE MANAGEMENT
+     * ========================================
+     */
+
+    /**
+     * Show loading state
+     * - Hide weather card and error state
+     * - Show loading spinner
+     * - Disable search button
+     */
     showLoading() {
         document.getElementById('weather-card').classList.add('hidden');
         document.getElementById('error-state').classList.add('hidden');
         document.getElementById('loading-state').classList.remove('hidden');
-        
+
+        // Update search button to show loading state
         const searchBtn = document.getElementById('search-btn');
         searchBtn.disabled = true;
         searchBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Loading...</span>';
     }
 
+    /**
+     * Hide loading state
+     * - Hide loading spinner
+     * - Re-enable search button
+     */
     hideLoading() {
         document.getElementById('loading-state').classList.add('hidden');
-        
+
+        // Restore search button to normal state
         const searchBtn = document.getElementById('search-btn');
         searchBtn.disabled = false;
         searchBtn.innerHTML = '<i class="fas fa-search"></i><span>Get Weather</span>';
     }
 
+    /**
+     * Show error state
+     * @param {string} message - Error message to display
+     */
     showError(message) {
-        this.hideLoading();
-        
+        this.hideLoading(); // Hide loading first
+
+        // Hide other states
         document.getElementById('weather-card').classList.add('hidden');
         document.getElementById('loading-state').classList.add('hidden');
-        
+
+        // Show error state with message
         const errorState = document.getElementById('error-state');
         document.getElementById('error-message').textContent = message;
         errorState.classList.remove('hidden');
     }
 
+    /**
+     * Hide error state
+     */
     hideError() {
         document.getElementById('error-state').classList.add('hidden');
     }
 
+    /**
+     * ========================================
+     * TOGGLE CLEAR BUTTON
+     * ========================================
+     * Show/hide the clear (X) button in search input
+     *
+     * @param {string} value - Input value
+     */
     toggleClearButton(value) {
         const clearBtn = document.getElementById('clear-btn');
         if (value) {
-            clearBtn.classList.remove('hidden');
+            clearBtn.classList.remove('hidden'); // Show if input has value
         } else {
-            clearBtn.classList.add('hidden');
+            clearBtn.classList.add('hidden'); // Hide if input is empty
         }
     }
 
+    /**
+     * ========================================
+     * CLEAR INPUT
+     * ========================================
+     * Clear search input and focus it
+     */
     clearInput() {
         document.getElementById('city-input').value = '';
         this.toggleClearButton('');
-        document.getElementById('city-input').focus();
+        document.getElementById('city-input').focus(); // Focus input for better UX
     }
 
+    /**
+     * ========================================
+     * SHOW TOAST NOTIFICATION
+     * ========================================
+     * Display a temporary notification message
+     *
+     * @param {string} message - Message to display
+     * @param {string} type - Toast type (info, success, error)
+     */
     showToast(message, type = 'info') {
         const toast = document.getElementById('toast');
         toast.textContent = message;
-        toast.className = `toast ${type}`;
-        toast.classList.add('show');
-        
+        toast.className = `toast ${type}`; // Apply type class for styling
+        toast.classList.add('show'); // Show toast
+
+        // Auto-hide after 3 seconds
         setTimeout(() => {
             toast.classList.remove('show');
         }, 3000);
     }
 
+    /**
+     * ========================================
+     * GET WEATHER ICON
+     * ========================================
+     * Convert weather code to emoji icon
+     *
+     * @param {number} code - Weather code from API
+     * @returns {string} Emoji icon
+     */
     getWeatherIcon(code) {
         const icons = {
-            0: '☀️',  
-            1: '🌤️',  
-            2: '⛅',  
-            3: '☁️',  
-            45: '🌫️', 
-            48: '🌫️', 
-            51: '🌦️', 
-            53: '🌦️',
-            55: '🌦️', 
-            61: '🌧️',
-            63: '🌧️', 
-            65: '🌧️', 
-            71: '❄️', 
-            73: '❄️', 
-            75: '❄️', 
-            77: '🌨️', 
-            80: '🌦️', 
-            81: '🌧️', 
-            82: '🌧️', 
-            85: '🌨️', 
-            86: '🌨️', 
-            95: '⛈️', 
-            96: '⛈️', 
-            99: '⛈️'  
+            0: '☀️',   // Clear sky
+            1: '🌤️',   // Mainly clear
+            2: '⛅',   // Partly cloudy
+            3: '☁️',   // Overcast
+            45: '🌫️',  // Fog
+            48: '🌫️',  // Depositing rime fog
+            51: '🌦️',  // Light drizzle
+            53: '🌦️',  // Moderate drizzle
+            55: '🌦️',  // Dense drizzle
+            61: '🌧️',  // Slight rain
+            63: '🌧️',  // Moderate rain
+            65: '🌧️',  // Heavy rain
+            71: '❄️',   // Slight snow
+            73: '❄️',   // Moderate snow
+            75: '❄️',   // Heavy snow
+            77: '🌨️',  // Snow grains
+            80: '🌦️',  // Slight rain showers
+            81: '🌧️',  // Moderate rain showers
+            82: '🌧️',  // Violent rain showers
+            85: '🌨️',  // Slight snow showers
+            86: '🌨️',  // Heavy snow showers
+            95: '⛈️',   // Thunderstorm
+            96: '⛈️',   // Thunderstorm with slight hail
+            99: '⛈️'    // Thunderstorm with heavy hail
         };
-        return icons[code] || '☀️';
+        return icons[code] || '☀️'; // Default to sun icon
     }
 
+    /**
+     * ========================================
+     * GET WEATHER DESCRIPTION
+     * ========================================
+     * Convert weather code to text description
+     *
+     * @param {number} code - Weather code from API
+     * @returns {string} Weather description
+     */
     getWeatherDescription(code) {
         const descriptions = {
             0: 'Clear sky',
@@ -451,31 +728,52 @@ class WeatherApp {
             96: 'Thunderstorm with hail',
             99: 'Thunderstorm with heavy hail'
         };
-        return descriptions[code] || 'Unknown';
+        return descriptions[code] || 'Unknown'; // Default to "Unknown"
     }
 
+    /**
+     * ========================================
+     * ANIMATE VALUE
+     * ========================================
+     * Smoothly animate a number from start to end value
+     * Used for temperature animation
+     *
+     * @param {string} elementId - ID of element to animate
+     * @param {number} start - Starting value
+     * @param {number} end - Ending value
+     * @param {number} duration - Animation duration in milliseconds
+     */
     animateValue(elementId, start, end, duration) {
+        // Validate inputs are numbers
         if (typeof start === 'string' || typeof end === 'string') return;
-        
+
+        // Get element
         const element = document.getElementById(elementId);
-        if (!element) return;
-        
-        const range = end - start;
-        const increment = range / (duration / 16);
-        let current = start;
-        
+        if (!element) return; // Exit if element not found
+
+        // Calculate animation parameters
+        const range = end - start; // Total change
+        const increment = range / (duration / 16); // Change per frame (60fps)
+        let current = start; // Current value
+
+        // Animation loop (runs every 16ms ≈ 60fps)
         const timer = setInterval(() => {
-            current += increment;
-            element.textContent = current.toFixed(1);
-            
+            current += increment; // Update current value
+            element.textContent = current.toFixed(1); // Display with 1 decimal
+
+            // Stop when target reached
             if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
-                element.textContent = end.toFixed(1);
-                clearInterval(timer);
+                element.textContent = end.toFixed(1); // Set final value
+                clearInterval(timer); // Stop animation
             }
-        }, 16);
+        }, 16); // 16ms ≈ 60fps
     }
 }
 
+// ========================================
+// INITIALIZE APP ON PAGE LOAD
+// ========================================
 document.addEventListener('DOMContentLoaded', () => {
+    // Create global instance of WeatherApp
     window.app = new WeatherApp();
 });
