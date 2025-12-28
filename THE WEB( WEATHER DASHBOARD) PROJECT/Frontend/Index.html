@@ -1,42 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- ========================================
+         META TAGS & PAGE SETTINGS
+         ======================================== -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🌤️ Weather Forecast | Real-time Weather Information</title>
+
+    <!-- ========================================
+         STYLESHEETS
+         ======================================== -->
+    <!-- Main CSS file with all styles -->
     <link rel="stylesheet" href="style.css">
+
+    <!-- Font Awesome icons library -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts: Poppins & Roboto -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- ========================================
+         MAIN CONTAINER
+         ======================================== -->
     <div class="container">
-             <main class="main-content">
+        <!-- ========================================
+             MAIN CONTENT AREA
+             ======================================== -->
+        <main class="main-content">
+
+            <!-- ========================================
+                 SEARCH SECTION
+                 Contains: Search input, Search button, Quick search chips
+                 ======================================== -->
             <section class="search-section">
                 <div class="search-container">
+
+                    <!-- Search Box: Input + Button -->
                     <div class="search-box">
+
+                        <!-- Search Input Wrapper -->
                         <div class="search-input-wrapper">
+                            <!-- Search icon (magnifying glass) -->
                             <i class="fas fa-search search-icon"></i>
-                            <input 
-                                type="text" 
-                                id="city-input" 
-                                placeholder="Search for a city (e.g., Cairo, London, Tokyo)" 
+
+                            <!-- Text input for city name -->
+                            <input
+                                type="text"
+                                id="city-input"
+                                placeholder="Search for a city (e.g., Cairo, London, Tokyo)"
                                 autocomplete="off"
                             >
+
+                            <!-- Clear button (X icon) - Hidden by default -->
                             <div class="input-actions">
                                 <button id="clear-btn" class="clear-btn hidden">
                                     <i class="fas fa-times"></i>
                                 </button>
                             </div>
                         </div>
+
+                        <!-- Search Button -->
                         <button id="search-btn" class="primary-btn">
                             <i class="fas fa-search"></i>
                             <span>Get Weather</span>
                         </button>
                     </div>
-                    
+
+                    <!-- Quick Search Chips: Pre-defined cities -->
                     <div class="quick-search">
                         <span class="quick-search-label">Quick search:</span>
                         <div class="quick-search-buttons">
+                            <!-- Each button has data-city attribute for JavaScript -->
                             <button class="city-chip" data-city="Cairo">Cairo</button>
                             <button class="city-chip" data-city="London">London</button>
                             <button class="city-chip" data-city="Tokyo">Tokyo</button>
@@ -47,58 +83,106 @@
                 </div>
             </section>
 
+            <!-- ========================================
+                 WEATHER SECTION
+                 Contains: Loading state, Error state, Weather card
+                 ======================================== -->
             <section class="weather-section">
+
+                <!-- ========================================
+                     LOADING STATE
+                     Shown while fetching weather data from API
+                     Hidden by default (class: hidden)
+                     ======================================== -->
                 <div id="loading-state" class="loading-state hidden">
                     <div class="loading-content">
+                        <!-- Animated spinner -->
                         <div class="loading-spinner"></div>
                         <h3>Fetching Weather Data</h3>
                         <p>Please wait while we get the latest weather information...</p>
+                        <!-- Animated progress bar -->
                         <div class="loading-progress">
                             <div class="progress-bar"></div>
                         </div>
                     </div>
                 </div>
 
+                <!-- ========================================
+                     ERROR STATE
+                     Shown when API call fails or city not found
+                     Hidden by default (class: hidden)
+                     ======================================== -->
                 <div id="error-state" class="error-state hidden">
                     <div class="error-content">
+                        <!-- Error icon (warning triangle) -->
                         <i class="fas fa-exclamation-triangle error-icon"></i>
                         <h3>Something Went Wrong</h3>
+                        <!-- Error message (updated by JavaScript) -->
                         <p id="error-message">Unable to fetch weather data. Please try again.</p>
+                        <!-- Retry button -->
                         <button id="retry-btn" class="secondary-btn">
                             <i class="fas fa-redo"></i>
                             Try Again
                         </button>
                     </div>
                 </div>
+
+                <!-- ========================================
+                     WEATHER CARD
+                     Displays weather information after successful API call
+                     Hidden by default (class: hidden)
+                     ======================================== -->
                 <div id="weather-card" class="weather-card hidden">
+
+                    <!-- Weather Card Header: Location + Current Weather -->
                     <div class="weather-card-header">
+
+                        <!-- Left Side: Location Information -->
                         <div class="location-info">
+                            <!-- City name (e.g., "Cairo") -->
                             <h2 id="city-name" class="city-name">--</h2>
+                            <!-- Country name (e.g., "Egypt") -->
                             <p class="country-name" id="country-name">--</p>
+
+                            <!-- Coordinates and Update Time -->
                             <div class="coordinates">
+                                <!-- Latitude & Longitude -->
                                 <span class="coordinate">
                                     <i class="fas fa-map-marker-alt"></i>
                                     <span id="coordinates">--, --</span>
                                 </span>
+                                <!-- Last update time -->
                                 <span class="update-time">
                                     <i class="fas fa-clock"></i>
                                     Updated: <span id="update-time">--</span>
                                 </span>
                             </div>
                         </div>
+
+                        <!-- Right Side: Current Weather Display -->
                         <div class="current-weather">
+                            <!-- Temperature Display: Icon + Value -->
                             <div class="temperature-display">
+                                <!-- Weather icon (emoji: ☀️, 🌧️, etc.) -->
                                 <div id="weather-icon" class="weather-icon-large">☀️</div>
+                                <!-- Temperature value -->
                                 <div class="temp-value">
                                     <span id="temperature" class="temperature">--</span>
                                     <span class="temp-unit">°C</span>
                                 </div>
                             </div>
+                            <!-- Weather description (e.g., "Clear sky") -->
                             <p id="weather-description" class="weather-desc">--</p>
                         </div>
                     </div>
 
+                    <!-- ========================================
+                         WEATHER DETAILS GRID
+                         Additional weather information cards
+                         ======================================== -->
                     <div class="weather-details-grid">
+
+                        <!-- Detail Card 1: Feels Like Temperature -->
                         <div class="detail-card">
                             <div class="detail-icon">
                                 <i class="fas fa-thermometer-half"></i>
@@ -108,7 +192,8 @@
                                 <span id="feels-like" class="detail-value">-- °C</span>
                             </div>
                         </div>
-                        
+
+                        <!-- Detail Card 2: Wind Speed -->
                         <div class="detail-card">
                             <div class="detail-icon">
                                 <i class="fas fa-wind"></i>
@@ -118,7 +203,8 @@
                                 <span id="wind-speed" class="detail-value">-- km/h</span>
                             </div>
                         </div>
-                        
+
+                        <!-- Detail Card 3: Humidity -->
                         <div class="detail-card">
                             <div class="detail-icon">
                                 <i class="fas fa-tint"></i>
@@ -128,7 +214,8 @@
                                 <span id="humidity" class="detail-value">-- %</span>
                             </div>
                         </div>
-                        
+
+                        <!-- Detail Card 4: Pressure -->
                         <div class="detail-card">
                             <div class="detail-icon">
                                 <i class="fas fa-compress-alt"></i>
@@ -138,7 +225,8 @@
                                 <span id="pressure" class="detail-value">-- hPa</span>
                             </div>
                         </div>
-                        
+
+                        <!-- Detail Card 5: Visibility -->
                         <div class="detail-card">
                             <div class="detail-icon">
                                 <i class="fas fa-eye"></i>
@@ -148,7 +236,8 @@
                                 <span id="visibility" class="detail-value">-- km</span>
                             </div>
                         </div>
-                        
+
+                        <!-- Detail Card 6: Weather Code -->
                         <div class="detail-card">
                             <div class="detail-icon">
                                 <i class="fas fa-cloud"></i>
@@ -160,12 +249,18 @@
                         </div>
                     </div>
 
+                    <!-- ========================================
+                         WEATHER FOOTER
+                         Sunrise and Sunset times
+                         ======================================== -->
                     <div class="weather-footer">
                         <div class="additional-info">
+                            <!-- Sunrise time -->
                             <div class="info-item">
                                 <i class="fas fa-sun"></i>
                                 <span>Sunrise: <span id="sunrise">--:--</span></span>
                             </div>
+                            <!-- Sunset time -->
                             <div class="info-item">
                                 <i class="fas fa-moon"></i>
                                 <span>Sunset: <span id="sunset">--:--</span></span>
@@ -175,16 +270,25 @@
                 </div>
             </section>
 
+            <!-- ========================================
+                 HISTORY SECTION
+                 Displays recent search history from database
+                 ======================================== -->
             <section class="history-section">
+
+                <!-- Section Header: Title + Clear All Button -->
                 <div class="section-header">
                     <h3><i class="fas fa-history"></i> Recent Searches</h3>
+                    <!-- Clear all history button -->
                     <button id="clear-history" class="text-btn">
                         <i class="fas fa-trash"></i>
                         Clear All
                     </button>
                 </div>
-                
+
+                <!-- History Container: Populated by JavaScript -->
                 <div id="history-container" class="history-container">
+                    <!-- Empty state: Shown when no history exists -->
                     <div class="empty-history">
                         <i class="fas fa-search"></i>
                         <p>No recent searches</p>
@@ -193,13 +297,24 @@
                 </div>
             </section>
 
-        
-        </main>
 
-      
+        </main>
+        <!-- End of Main Content -->
+
     </div>
+    <!-- End of Container -->
+
+    <!-- ========================================
+         TOAST NOTIFICATION
+         Shows success/error messages
+         Positioned fixed at bottom-right
+         ======================================== -->
     <div id="toast" class="toast"></div>
 
+    <!-- ========================================
+         JAVASCRIPT
+         Main application logic
+         ======================================== -->
     <script src="script.js"></script>
 </body>
 </html>
